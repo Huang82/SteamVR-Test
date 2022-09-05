@@ -4,16 +4,17 @@ using UnityEngine;
 
 public class Pointer : MonoBehaviour
 {
-    public float m_DefaultLength = 5.0f;
-    public GameObject m_Dot;
-    public VRInputModule m_inputModule;
+    [SerializeField] private float m_DefaultLength = 5.0f;
+    [SerializeField] private GameObject m_Dot;
+    [SerializeField] private LineRenderer m_LineRenderer = null;
+    [SerializeField] private LayerMask layerMask;
 
-    private LineRenderer m_LineRenderer = null;
+    [SerializeField] private PointerCallEvent m_PointerCallEvent;
+
 
 
     void Start()
     {
-        m_LineRenderer = this.GetComponent<LineRenderer>();
     }
 
     void Update()
@@ -32,9 +33,22 @@ public class Pointer : MonoBehaviour
         // Default
         Vector3 endPosition = this.transform.position + (transform.forward * targetLength);
 
-        // Or base on hit
+
+
+        // Or base on hit, 先別碰到東西在顯示(常開)
         if (hit.collider != null)
+        { 
             endPosition = hit.point;
+            m_PointerCallEvent.IsHit = true;
+        //    m_Dot.SetActive(true);
+        //    m_LineRenderer.gameObject.SetActive(true);
+        }
+        else
+        {
+            m_PointerCallEvent.IsHit = false;
+            //m_Dot.SetActive(false);
+            //m_LineRenderer.gameObject.SetActive(false);
+        }
 
         // Set position of the dot
         m_Dot.transform.position = endPosition;
@@ -48,7 +62,7 @@ public class Pointer : MonoBehaviour
     {
         RaycastHit hit;
         Ray ray = new Ray(this.transform.position, this.transform.forward);
-        Physics.Raycast(ray, out hit, m_DefaultLength);
+        Physics.Raycast(ray, out hit, m_DefaultLength, layerMask);
 
         return hit;
     }
